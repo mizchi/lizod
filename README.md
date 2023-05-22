@@ -1,6 +1,6 @@
 # lizod
 
-Lightweight zod-like validator (about 600bytes with full featuers)
+Lightweight zod-like validator (about 600bytes with full features)
 
 ```bash
 $ npm install lizod -S
@@ -12,7 +12,7 @@ $ npm install lizod -S
   - No method-chaining
   - No error reporters
   - No string utils like `.email()`
-- Bare TypeScipt's type expression helpers
+- Bare TypeScript's type expression helpers
 
 ## How to use
 
@@ -37,7 +37,7 @@ import {
   $void,
   type Infer,
   type Validator,
-} from "lzod";
+} from "lizod";
 
 const validate = $object({
   name: $string,
