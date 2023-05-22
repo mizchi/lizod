@@ -1,12 +1,12 @@
 # lizod
 
-Lightweight zod-like validator (500B with full featuers)
+Lightweight zod-like validator (about 600bytes with full featuers)
 
 ```bash
 $ npm install lizod -S
 ```
 
-## Conpect
+## Concepts
 
 - Spiritual successor of zod but for bundle size.
   - No method-chaining
