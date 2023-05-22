@@ -1,0 +1,33 @@
+{
+  "name": "lzod",
+  "version": "0.1.0",
+  "description": "lightweight zod-like validator",
+  "type": "module",
+  "main": "lib/index.js",
+  "types": "lib/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./lib/index.d.ts",
+      "import": "./lib/index.js",
+      "require": "./lib/index.js"
+    }
+  },
+  "scripts": {
+    "build": "tsc -p .",
+    "test": "vitest --run"
+  },
+  "keywords": [
+    "zod",
+    "typescript"
+  ],
+  "author": "mizchi",
+  "license": "MIT",
+  "devDependencies": {
+    "typescript": "^5.0.4",
+    "vitest": "^0.31.1"
+  },
+  "files": [
+    "lib",
+    "src"
+  ]
+}
