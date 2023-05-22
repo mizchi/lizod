@@ -1,9 +1,9 @@
-# lzod
+# lizod
 
 Lightweight zod-like validator (500B with full featuers)
 
 ```bash
-$ npm install lzod -S
+$ npm install lizod -S
 ```
 
 ## Conpect
@@ -103,7 +103,7 @@ if (validate(v)) {
 
 ```ts
 // with custom validator
-import type { Validator } from "lzod";
+import type { Validator } from "lizod";
 
 const isA: Validator<"A"> = (input: any): input is "A" => input === "A";
 const myValidator = $object({

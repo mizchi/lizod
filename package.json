@@ -1,5 +1,5 @@
 {
-  "name": "lzod",
+  "name": "lizod",
   "version": "0.1.0",
   "description": "lightweight zod-like validator",
   "type": "module",
