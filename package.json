@@ -27,6 +27,9 @@
     "typescript": "^5.0.4",
     "vitest": "^0.31.1"
   },
+  "peerDependencies": {
+    "typescript": ">=5"
+  },
   "files": [
     "lib",
     "src"
