@@ -1,6 +1,7 @@
 {
   "name": "lizod",
   "version": "0.2.1",
+  "packageManager": "pnpm@8.3.1",
   "description": "lightweight zod-like validator",
   "type": "module",
   "main": "lib/index.js",
