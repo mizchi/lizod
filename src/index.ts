@@ -16,11 +16,8 @@ export type ValidatorObject<Expect extends {}> = (input: any) => input is {
 type ValidatorsToUnion<Vs> = Vs extends Array<Validator<infer T>> ? T
   : never;
 
-export type Infer<T> = T extends ValidatorObject<any> ? {
-    [K in keyof T]: Infer<T[K]>;
-  }
-  : T extends Validator<infer E> ? E
-  : never;
+export type Infer<T> = T extends Validator<infer E> ? E
+  : unknown;
 
 // https://stackoverflow.com/questions/75405517/typescript-generic-function-where-parameters-compose-into-the-return-type
 type TupleToIntersection<T extends any[]> = {
