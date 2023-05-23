@@ -13,6 +13,7 @@
     }
   },
   "scripts": {
+    "prepublishOnly": "pnpm build",
     "build": "tsc -p .",
     "test": "vitest --run"
   },
