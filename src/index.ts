@@ -1,6 +1,15 @@
 // lightweight zod
 
-export type Validator<Expect> = (input: any) => input is Expect;
+type AccessPath = Array<(string | symbol | number)>;
+type ValidatorContext = {
+  errors: Array<AccessPath>;
+};
+
+export type Validator<Expect> = (
+  input: any,
+  ctx?: ValidatorContext,
+  path?: (string | symbol | number)[],
+) => input is Expect;
 export type ValidatorObject<Expect extends {}> = (input: any) => input is {
   [K in keyof Expect]: Expect[K] extends Validator<infer CT> ? CT : never;
 };
@@ -49,14 +58,14 @@ export const $any: Validator<void> = (input: any): input is any => {
 
 export const $opt =
   <T>(validator: Validator<T>): Validator<T | void> =>
-  (input: any): input is T | void => {
-    return input == null || validator(input);
+  (input: any, ctx): input is T | void => {
+    return input == null || validator(input, ctx);
   };
 
 export const $nullable =
   <T>(validator: Validator<T>): Validator<NonNullable<T> | null> =>
-  (input: any): input is NonNullable<T> | null => {
-    return input === null || validator(input);
+  (input: any, ctx): input is NonNullable<T> | null => {
+    return input === null || validator(input, ctx);
   };
 
 export const $string: Validator<string> = (input: any): input is string => {
@@ -89,64 +98,97 @@ export const $enum =
 export const $intersection = <T extends any[]>(
   validators: [...{ [I in keyof T]: Validator<T[I]> }],
 ): Validator<TupleToIntersection<T>> => {
-  return ((doc: any): doc is TupleToIntersection<T> => {
+  return ((
+    input: any,
+    ctx: ValidatorContext = { errors: [] },
+    path: (string | symbol | number)[] = [],
+  ): input is TupleToIntersection<T> => {
     for (const validator of validators) {
-      if (!validator(doc)) return false;
+      if (!validator(input, ctx, path)) return false;
     }
     return true;
   });
 };
 
-export const $union =
-  <T, Vs extends Array<Validator<T>>>(validators: Vs) =>
-  (input: any): input is ValidatorsToUnion<Vs> => {
-    for (const validator of validators) {
-      if (validator(input)) {
-        return true;
-      }
+export const $union = <T, Vs extends Array<Validator<T>>>(validators: Vs) =>
+(
+  input: any,
+  ctx?: ValidatorContext,
+  path: (string | symbol | number)[] = [],
+): input is ValidatorsToUnion<Vs> => {
+  for (const validator of validators) {
+    if (validator(input, ctx, path)) {
+      return true;
     }
-    return false;
-  };
+  }
+  return false;
+};
 
 export const $object = <
   Map extends {
     [key: string]: Validator<any>;
   },
->(vmap: Map, exact: boolean = true) =>
-(
-  input: any,
-): input is {
-  [K in keyof Map]: Map[K] extends ValidatorObject<infer O> ? O
-    : Map[K] extends Validator<infer I> ? I
-    : never;
-} => {
-  if (_typeof(input) !== "object" || input === null) {
-    return false;
-  }
-  const unchecked = new Set(Object.keys(input));
-  for (const [key, validator] of Object.entries(vmap)) {
-    if (key === "__proto__") {
-      continue;
-    }
-    if (!validator(input?.[key])) {
+>(vmap: Map, exact: boolean = true) => {
+  const fn = (
+    input: any,
+    ctx?: ValidatorContext,
+    path: AccessPath = [],
+  ): input is {
+    [K in keyof Map]: Map[K] extends ValidatorObject<infer O> ? O
+      : Map[K] extends Validator<infer I> ? I
+      : never;
+  } => {
+    if (_typeof(input) !== "object" || input === null) {
       return false;
     }
-    unchecked.delete(key);
-  }
-  if (exact) {
-    return unchecked.size === 0;
-  } else {
-    return true;
-  }
+    const unchecked = new Set(Object.keys(input));
+    let failed = false;
+    for (const [key, validator] of Object.entries(vmap)) {
+      if (key === "__proto__") {
+        continue;
+      }
+      const childPath = [...path, key] as AccessPath;
+      if (!validator(input?.[key], ctx, childPath)) {
+        failed = true;
+        ctx?.errors.push(childPath);
+      }
+      unchecked.delete(key);
+    }
+    if (failed) return false;
+    if (exact) {
+      return unchecked.size === 0;
+    } else {
+      return true;
+    }
+  };
+  return fn;
 };
 
 export const $array = <
   T extends Validator<any>,
->(child: T) =>
-(input: any): input is Array<
-  T extends Validator<infer O> ? O : never
-> => {
-  return Array.isArray(input) && input.every((i) => {
-    return child(i);
-  });
+>(child: T) => {
+  const fn = (
+    input: any,
+    ctx?: ValidatorContext,
+    path: AccessPath = [],
+  ): input is Array<
+    T extends Validator<infer O> ? O : never
+  > => {
+    if (!Array.isArray(input)) return false;
+    let failed = false;
+    for (let i = 0; i < input.length; i++) {
+      const childPath = [...path, i];
+      const v = input[i];
+      if (!child(v, ctx, childPath)) {
+        failed = true;
+        ctx?.errors.push(childPath);
+      }
+    }
+    if (failed) return false;
+    return true;
+  };
+  return fn;
 };
+
+export const access = (obj: any, path: Array<string | number>) =>
+  path.reduce((o, k) => o?.[k], obj);

@@ -16,6 +16,7 @@ import {
   $undefined,
   $union,
   $void,
+  access,
   type Infer,
   Validator,
 } from "./index.js";
@@ -188,4 +189,55 @@ test("with custom validator", () => {
   });
   expect(validate({ a: "A" })).toBe(true);
   expect(validate({ a: "B" })).toBe(false);
+});
+
+test("errors", () => {
+  {
+    const ctx = { errors: [] };
+    expect($object({ a: $number })({ a: 1 }, ctx)).toBe(true);
+    expect(ctx.errors).toEqual([]);
+  }
+  {
+    const ctx = { errors: [] };
+    expect($object({ a: $number })({ a: "" }, ctx)).toBe(false);
+    expect(ctx.errors).toEqual([["a"]]);
+  }
+  {
+    const ctx = { errors: [] };
+    expect($object({ a: $number, b: $number })({ a: "", b: false }, ctx)).toBe(
+      false,
+    );
+    expect(ctx.errors).toEqual([["a"], ["b"]]);
+  }
+  // nested object
+  {
+    const ctx = { errors: [] };
+    expect($object({ a: $object({ b: $number }) })({ a: { b: true } }, ctx))
+      .toBe(
+        false,
+      );
+    expect(ctx.errors).toEqual([["a", "b"], ["a"]]);
+  }
+
+  // object with array
+  {
+    const ctx = { errors: [] };
+    expect($object({ a: $array($number) })({ a: ["0", 1, "2", 3] }, ctx))
+      .toBe(
+        false,
+      );
+    expect(ctx.errors).toEqual([["a", 0], ["a", 2], ["a"]]);
+  }
+
+  // nested array
+  {
+    const ctx = { errors: [] };
+    expect($array($array($number))([["0", 1, "2", 3]], ctx))
+      .toBe(
+        false,
+      );
+    expect(ctx.errors).toEqual([[0, 0], [0, 2], [0]]);
+    expect(access([["0", 1, "2", 3]], [0, 0])).toBe("0");
+    expect(access([["0", 1, "2", 3]], [0, 2])).toBe("2");
+  }
 });

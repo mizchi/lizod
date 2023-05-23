@@ -10,8 +10,8 @@ $ npm install lizod -S
 
 - Spiritual successor of zod but for bundle size.
   - No method-chaining
-  - No error reporters
   - No string utils like `.email()`
+  - Very simple error reporter
 - Bare TypeScript's type expression helpers
 
 ## How to use
@@ -99,16 +99,58 @@ if (validate(v)) {
 }
 ```
 
+## exact | loose object
+
+Allow unchecked params on object
+
+```ts
+import {$object} from "lizod";
+
+// default exact
+const ret1 = $object({a: $string}, /* default */ true)({}); // => false
+// loose
+const ret2 = $object({a: $string}, false) // => true;
+```
+
+default mode is exact.
+
+## Error Reporter
+
+```ts
+import { access } from "lizod";
+
+// your validator
+const validate = $object({ a: $string });
+
+const input = { a: 1 };
+
+// check with context mutation
+const ctx = { errors: [] };
+const ret = validate(input, ctx);
+
+// report errors
+for (const errorPath of ctx.errors) {
+  console.log("error at", errorPath, access(input, errorPath));
+}
+```
+
+Do not reuse `ctx`.
+
 ## With custom validator
 
 ```ts
-// with custom validator
-import type { Validator } from "lizod";
+import type { Validator, ValidatorContext } from "lizod";
 
+// simple validator
 const isA: Validator<"A"> = (input: any): input is "A" => input === "A";
 const myValidator = $object({
   a: isA,
 });
+
+// create wrapper validator
+// you should pass context args to next validator for error reporter
+const wrap: (child: Validator<string>) => Validator<string> =
+  (input: any, ctx: ValidatorContext, path = []): input is string => child(input, ctx, path);
 ```
 
 ## Relations
