@@ -6,6 +6,8 @@ Lightweight zod-like validator (about 600bytes with full features)
 $ npm install lizod -S
 ```
 
+typescript >=5 required.
+
 ## Concepts
 
 - Spiritual successor of zod but for bundle size.
