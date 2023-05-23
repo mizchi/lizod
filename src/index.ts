@@ -90,7 +90,7 @@ export const $boolean: Validator<boolean> = (input: any): input is boolean => {
 };
 
 export const $enum =
-  <E extends Array<string>>(enums: E): Validator<E[number]> =>
+  <const E extends readonly string[]>(enums: E): Validator<E[number]> =>
   (input: any): input is E[number] => {
     return enums.includes(input);
   };
