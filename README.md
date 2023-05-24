@@ -106,12 +106,12 @@ if (validate(v)) {
 Allow unchecked params on object
 
 ```ts
-import {$object} from "lizod";
+import {$object, $string} from "lizod";
 
 // default exact
-const ret1 = $object({a: $string}, /* default */ true)({}); // => false
+const ret1 = $object({a: $string}, /* default */ true)({a: "", b: ""}); // => false
 // loose
-const ret2 = $object({a: $string}, false) // => true;
+const ret2 = $object({a: $string}, false)({a: "", b: ""}) // => true;
 ```
 
 default mode is exact.
@@ -119,7 +119,7 @@ default mode is exact.
 ## Error Reporter
 
 ```ts
-import { access } from "lizod";
+import { $object, $string, access } from "lizod";
 
 // your validator
 const validate = $object({ a: $string });
