@@ -190,18 +190,14 @@ export const $array = <
   return fn;
 };
 
-type InferTuple<T extends readonly Validator<any>[]> = T extends readonly [
-  Validator<infer A>,
-  ...infer B extends readonly Validator<any>[],
-] ? [A, ...InferTuple<B>]
-  : [];
-
-export const $tuple = <T extends readonly Validator<any>[]>(...children: T) => {
+export const $tuple = <T extends any[]>(
+  children: [...{ [I in keyof T]: Validator<T[I]> }],
+) => {
   const fn = (
     input: unknown,
     ctx?: ValidatorContext,
     path: AccessPath = [],
-  ): input is InferTuple<T> => {
+  ): input is T => {
     if (!Array.isArray(input)) return false;
     const length = Math.max(children.length, input.length ?? 0);
     let failed = false;

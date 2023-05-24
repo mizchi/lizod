@@ -120,18 +120,19 @@ test("union", () => {
 });
 
 test("tuple", () => {
-  expect($tuple($string)([""])).toBe(true);
-  expect($tuple($string)(null)).toBe(false);
-  expect($tuple($string)(1)).toBe(false);
-  expect($tuple($string)({})).toBe(false);
-  expect($tuple($string)([1])).toBe(false);
-  expect($tuple($string, $number)(["", 1])).toBe(true);
-  expect($tuple($string, $number)(["", ""])).toBe(false);
-  expect($tuple($string, $number)([1, 1])).toBe(false);
-  expect($tuple($string, $number)([null, null])).toBe(false);
-  expect($tuple($string, $number)([])).toBe(false);
-  expect($tuple($string, $number)([""])).toBe(false);
-  expect($tuple($string, $number)(["", 1, 2])).toBe(false);
+  expect($tuple([$string])([""])).toBe(true);
+  expect($tuple([$string])(null)).toBe(false);
+  expect($tuple([$string])(1)).toBe(false);
+  expect($tuple([$string])([])).toBe(false);
+  expect($tuple([$string])({})).toBe(false);
+  expect($tuple([$string])([1])).toBe(false);
+  expect($tuple([$string, $number])(["", 1])).toBe(true);
+  expect($tuple([$string, $number])(["", ""])).toBe(false);
+  expect($tuple([$string, $number])([1, 1])).toBe(false);
+  expect($tuple([$string, $number])([null, null])).toBe(false);
+  expect($tuple([$string, $number])([])).toBe(false);
+  expect($tuple([$string, $number])([""])).toBe(false);
+  expect($tuple([$string, $number])(["", 1, 2])).toBe(false);
 });
 
 test("complex", () => {
@@ -153,7 +154,7 @@ test("complex", () => {
       $object({ b: $number }),
     ])),
     sec: $intersection([$string, $const("x")]),
-    tuple: $tuple($string, $number),
+    tuple: $tuple([$string, $number]),
   });
 
   const v: Infer<typeof validate> = {
@@ -231,7 +232,7 @@ test("errors", () => {
   }
   {
     const ctx = { errors: [] };
-    expect($tuple($number, $number)(["", false, null], ctx)).toBe(false);
+    expect($tuple([$number, $number])(["", false, null], ctx)).toBe(false);
     expect(ctx.errors).toEqual([[0], [1], [2]]);
   }
   // nested object
