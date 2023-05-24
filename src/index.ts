@@ -191,7 +191,7 @@ export const $array = <
 };
 
 export const $tuple = <T extends any[]>(
-  children: [...{ [I in keyof T]: Validator<T[I]> }],
+  children: readonly [...{ [I in keyof T]: Validator<T[I]> }],
 ) => {
   const fn = (
     input: unknown,
