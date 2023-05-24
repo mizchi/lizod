@@ -190,5 +190,33 @@ export const $array = <
   return fn;
 };
 
+type InferTuple<T extends readonly Validator<any>[]> = T extends readonly [
+  Validator<infer A>,
+  ...infer B extends readonly Validator<any>[],
+] ? [A, ...InferTuple<B>]
+  : [];
+
+export const $tuple = <T extends readonly Validator<any>[]>(...children: T) => {
+  const fn = (
+    input: unknown,
+    ctx?: ValidatorContext,
+    path: AccessPath = [],
+  ): input is InferTuple<T> => {
+    if (!Array.isArray(input)) return false;
+    const length = Math.max(children.length, input.length ?? 0);
+    let failed = false;
+    for (let i = 0; i < length; i++) {
+      const childPath = [...path, i];
+      const v = input[i];
+      if (!children[i]?.(v, ctx, childPath)) {
+        failed = true;
+        ctx?.errors.push(childPath);
+      }
+    }
+    return !failed;
+  };
+  return fn;
+};
+
 export const access = (obj: any, path: Array<string | number>) =>
   path.reduce((o, k) => o?.[k], obj);

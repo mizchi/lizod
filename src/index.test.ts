@@ -13,6 +13,7 @@ import {
   $regexp,
   $string,
   $symbol,
+  $tuple,
   $undefined,
   $union,
   $void,
@@ -118,6 +119,21 @@ test("union", () => {
   expect($union([$string, $number])("")).toBe(true);
 });
 
+test("tuple", () => {
+  expect($tuple($string)([""])).toBe(true);
+  expect($tuple($string)(null)).toBe(false);
+  expect($tuple($string)(1)).toBe(false);
+  expect($tuple($string)({})).toBe(false);
+  expect($tuple($string)([1])).toBe(false);
+  expect($tuple($string, $number)(["", 1])).toBe(true);
+  expect($tuple($string, $number)(["", ""])).toBe(false);
+  expect($tuple($string, $number)([1, 1])).toBe(false);
+  expect($tuple($string, $number)([null, null])).toBe(false);
+  expect($tuple($string, $number)([])).toBe(false);
+  expect($tuple($string, $number)([""])).toBe(false);
+  expect($tuple($string, $number)(["", 1, 2])).toBe(false);
+});
+
 test("complex", () => {
   const validate = $object({
     name: $string,
@@ -137,6 +153,7 @@ test("complex", () => {
       $object({ b: $number }),
     ])),
     sec: $intersection([$string, $const("x")]),
+    tuple: $tuple($string, $number),
   });
 
   const v: Infer<typeof validate> = {
@@ -163,6 +180,7 @@ test("complex", () => {
       { b: 1 },
     ],
     sec: "x",
+    tuple: ["", 1],
   };
 
   if (validate(v)) {
@@ -176,6 +194,8 @@ test("complex", () => {
       a: string;
       b: boolean;
     }> = v.items;
+    const ________: string = v.tuple[0];
+    const _________: number = v.tuple[1];
   } else {
     throw new Error("validation failed");
   }
@@ -208,6 +228,11 @@ test("errors", () => {
       false,
     );
     expect(ctx.errors).toEqual([["a"], ["b"]]);
+  }
+  {
+    const ctx = { errors: [] };
+    expect($tuple($number, $number)(["", false, null], ctx)).toBe(false);
+    expect(ctx.errors).toEqual([[0], [1], [2]]);
   }
   // nested object
   {
