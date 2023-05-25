@@ -48,8 +48,8 @@ export const $any: Validator<void> = (input: any): input is any => {
 };
 
 export const $opt =
-  <T>(validator: Validator<T>): Validator<T | void> =>
-  (input: any, ctx): input is T | void => {
+  <T>(validator: Validator<T>): Validator<T | null | undefined> =>
+  (input: any, ctx): input is T | null | undefined => {
     return input == null || validator(input, ctx);
   };
 

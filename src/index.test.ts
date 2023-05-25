@@ -187,7 +187,7 @@ test("complex", () => {
   if (validate(v)) {
     const _: string = v.name;
     const __: number = v.age;
-    const ___: string | void = v.familyName;
+    const ___: string | null | undefined = v.familyName;
     const ____: "a" | "b" | "c" = v.abc;
     const _____: { age: number } = v.nested;
     const ______: "static" = v.static;
