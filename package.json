@@ -1,6 +1,6 @@
 {
   "name": "lizod",
-  "version": "0.2.2",
+  "version": "0.2.3",
   "packageManager": "pnpm@8.3.1",
   "description": "lightweight zod-like validator",
   "type": "module",
