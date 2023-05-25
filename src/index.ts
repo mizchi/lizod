@@ -190,5 +190,29 @@ export const $array = <
   return fn;
 };
 
+export const $tuple = <T extends any[]>(
+  children: readonly [...{ [I in keyof T]: Validator<T[I]> }],
+) => {
+  const fn = (
+    input: unknown,
+    ctx?: ValidatorContext,
+    path: AccessPath = [],
+  ): input is T => {
+    if (!Array.isArray(input)) return false;
+    const length = Math.max(children.length, input.length ?? 0);
+    let failed = false;
+    for (let i = 0; i < length; i++) {
+      const childPath = [...path, i];
+      const v = input[i];
+      if (!children[i]?.(v, ctx, childPath)) {
+        failed = true;
+        ctx?.errors.push(childPath);
+      }
+    }
+    return !failed;
+  };
+  return fn;
+};
+
 export const access = (obj: any, path: Array<string | number>) =>
   path.reduce((o, k) => o?.[k], obj);
