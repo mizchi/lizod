@@ -10,17 +10,8 @@ export type Validator<Expect> = (
   ctx?: ValidatorContext,
   path?: (string | symbol | number)[],
 ) => input is Expect;
-export type ValidatorObject<Expect extends {}> = (input: any) => input is {
-  [K in keyof Expect]: Expect[K] extends Validator<infer CT> ? CT : never;
-};
-type ValidatorsToUnion<Vs> = Vs extends Array<Validator<infer T>> ? T
-  : never;
-
-export type Infer<T> = T extends ValidatorObject<any> ? {
-    [K in keyof T]: Infer<T[K]>;
-  }
-  : T extends Validator<infer E> ? E
-  : never;
+export type Infer<T> = T extends Validator<infer E> ? E
+  : unknown;
 
 // https://stackoverflow.com/questions/75405517/typescript-generic-function-where-parameters-compose-into-the-return-type
 type TupleToIntersection<T extends any[]> = {
@@ -57,8 +48,8 @@ export const $any: Validator<void> = (input: any): input is any => {
 };
 
 export const $opt =
-  <T>(validator: Validator<T>): Validator<T | void> =>
-  (input: any, ctx): input is T | void => {
+  <T>(validator: Validator<T>): Validator<T | null | undefined> =>
+  (input: any, ctx): input is T | null | undefined => {
     return input == null || validator(input, ctx);
   };
 
@@ -95,14 +86,14 @@ export const $enum =
     return enums.includes(input);
   };
 
-export const $intersection = <T extends any[]>(
-  validators: [...{ [I in keyof T]: Validator<T[I]> }],
-): Validator<TupleToIntersection<T>> => {
+export const $intersection = <Vs extends Array<Validator<any>>>(
+  validators: readonly [...Vs],
+): Validator<Infer<TupleToIntersection<Vs>>> => {
   return ((
     input: any,
     ctx: ValidatorContext = { errors: [] },
     path: (string | symbol | number)[] = [],
-  ): input is TupleToIntersection<T> => {
+  ): input is Infer<TupleToIntersection<Vs>> => {
     for (const validator of validators) {
       if (!validator(input, ctx, path)) return false;
     }
@@ -110,33 +101,30 @@ export const $intersection = <T extends any[]>(
   });
 };
 
-export const $union = <T, Vs extends Array<Validator<T>>>(validators: Vs) =>
-(
-  input: any,
-  ctx?: ValidatorContext,
-  path: (string | symbol | number)[] = [],
-): input is ValidatorsToUnion<Vs> => {
-  for (const validator of validators) {
-    if (validator(input, ctx, path)) {
-      return true;
+export const $union =
+  <Vs extends Array<Validator<any>>>(validators: readonly [...Vs]) =>
+  (
+    input: any,
+    ctx?: ValidatorContext,
+    path: (string | symbol | number)[] = [],
+  ): input is Infer<Vs[number]> => {
+    for (const validator of validators) {
+      if (validator(input, ctx, path)) {
+        return true;
+      }
     }
-  }
-  return false;
-};
+    return false;
+  };
 
 export const $object = <
-  Map extends {
-    [key: string]: Validator<any>;
-  },
+  Map extends Record<string, Validator<any>>,
 >(vmap: Map, exact: boolean = true) => {
   const fn = (
     input: any,
     ctx?: ValidatorContext,
     path: AccessPath = [],
   ): input is {
-    [K in keyof Map]: Map[K] extends ValidatorObject<infer O> ? O
-      : Map[K] extends Validator<infer I> ? I
-      : never;
+    [K in keyof Map]: Infer<Map[K]>;
   } => {
     if (_typeof(input) !== "object" || input === null) {
       return false;
@@ -171,9 +159,7 @@ export const $array = <
     input: any,
     ctx?: ValidatorContext,
     path: AccessPath = [],
-  ): input is Array<
-    T extends Validator<infer O> ? O : never
-  > => {
+  ): input is Array<Infer<T>> => {
     if (!Array.isArray(input)) return false;
     let failed = false;
     for (let i = 0; i < input.length; i++) {
