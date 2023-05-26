@@ -77,7 +77,7 @@ export const $number: Validator<number> = (input: any): input is number => {
 };
 
 export const $boolean: Validator<boolean> = (input: any): input is boolean => {
-  return typeof input === "boolean";
+  return _typeof(input) === "boolean";
 };
 
 export const $enum =
