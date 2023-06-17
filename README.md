@@ -45,7 +45,7 @@ const validate = $object({
   name: $string,
   age: $number,
   familyName: $opt($string),
-  abc: $enum(["a" as const, "b" as const, "c" as const]),
+  abc: $enum(["a", "b", "c"]),
   nested: $object({
     age: $number,
   }),
