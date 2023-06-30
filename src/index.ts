@@ -18,6 +18,10 @@ type TupleToIntersection<T extends any[]> = {
   [I in keyof T]: (x: T[I]) => void;
 }[number] extends (x: infer R) => void ? R : never;
 
+type MapInfer<T> = T extends [infer x, ...infer xs]
+  ? [Infer<x>, ...MapInfer<xs>]
+  : [];
+
 export const $const =
   <T extends number | string | boolean | undefined | void | symbol>(
     def: T,
@@ -88,12 +92,12 @@ export const $enum =
 
 export const $intersection = <Vs extends Array<Validator<any>>>(
   validators: readonly [...Vs],
-): Validator<Infer<TupleToIntersection<Vs>>> => {
+): Validator<TupleToIntersection<MapInfer<Vs>>> => {
   return ((
     input: any,
     ctx: ValidatorContext = { errors: [] },
     path: (string | symbol | number)[] = [],
-  ): input is Infer<TupleToIntersection<Vs>> => {
+  ): input is TupleToIntersection<MapInfer<Vs>> => {
     for (const validator of validators) {
       if (!validator(input, ctx, path)) return false;
     }
