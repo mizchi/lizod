@@ -119,6 +119,21 @@ test("union", () => {
   expect($union([$string, $number])("")).toBe(true);
 });
 
+test("intersection", () => {
+  expect(
+    $intersection([
+      $object({ a: $number }, false),
+      $object({ b: $string }, false),
+    ])({ a: 1, b: "" }),
+  ).toBe(true);
+  expect(
+    $intersection([
+      $object({ a: $number }),
+      $object({ b: $string }),
+    ])({ a: 1, b: "" }),
+  ).toBe(false);
+});
+
 test("tuple", () => {
   expect($tuple([$string])([""])).toBe(true);
   expect($tuple([$string])(null)).toBe(false);
