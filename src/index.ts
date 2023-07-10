@@ -67,6 +67,17 @@ export const $string: Validator<string> = (input: any): input is string => {
   return _typeof(input) === "string";
 };
 
+/** Number parseable string for record key */
+export const $numberString: Validator<string> = (
+  input: any,
+): input is string => {
+  if (_typeof(input) === "string" && input.length > 0) {
+    const parsed = Number(input);
+    return Number.isNaN(parsed) === false;
+  }
+  return false;
+};
+
 export const $regexp =
   (regexp: RegExp): Validator<string> => (input: any): input is string => {
     return _typeof(input) === "string" && regexp.test(input);
@@ -170,6 +181,39 @@ export const $array = <
       const childPath = [...path, i];
       const v = input[i];
       if (!child(v, ctx, childPath)) {
+        failed = true;
+        ctx?.errors.push(childPath);
+      }
+    }
+    if (failed) return false;
+    return true;
+  };
+  return fn;
+};
+
+export const $record = <
+  K extends Validator<string>,
+  V extends Validator<any>,
+>(keyValidator: K, valueValidator: V) => {
+  const fn = (
+    input: any,
+    ctx?: ValidatorContext,
+    path: AccessPath = [],
+  ): input is {
+    [K: string]: Infer<V>;
+  } => {
+    if (_typeof(input) !== "object" || input === null) {
+      return false;
+    }
+    let failed = false;
+    for (const [key, val] of Object.entries(input)) {
+      if (key === "__proto__") continue;
+      const childPath = [...path, key] as AccessPath;
+      if (!keyValidator(key, ctx, childPath)) {
+        failed = true;
+        ctx?.errors.push(childPath);
+      }
+      if (!valueValidator(val, ctx, childPath)) {
         failed = true;
         ctx?.errors.push(childPath);
       }

@@ -8,8 +8,10 @@ import {
   $intersection,
   $null,
   $number,
+  $numberString,
   $object,
   $opt,
+  $record,
   $regexp,
   $string,
   $symbol,
@@ -70,6 +72,20 @@ test("primitives", () => {
   expect($opt($number)(null)).toBe(true);
 });
 
+test("numberString", () => {
+  expect($numberString("0")).toBe(true);
+  expect($numberString("00")).toBe(true);
+  expect($numberString("0b1")).toBe(true);
+  expect($numberString("0bx")).toBe(false);
+  expect($numberString("0xff")).toBe(true);
+  expect($numberString("0xg")).toBe(false);
+
+  expect($numberString("10.0")).toBe(true);
+  expect($numberString("")).toBe(false);
+  expect($numberString("NaN")).toBe(false);
+  expect($numberString("string")).toBe(false);
+});
+
 test("object", () => {
   expect($object({})({})).toBe(true);
   expect($object({})({ a: "" })).toBe(false);
@@ -93,6 +109,27 @@ test("object", () => {
       nested: { v: 1 },
     }),
   ).toBe(false);
+});
+
+test("record", () => {
+  expect($record($string, $number)({})).toBe(true);
+  expect($record($string, $number)({ a: 1 })).toBe(true);
+  expect($record($string, $number)({ a: 1, b: 2 })).toBe(true);
+  expect($record($string, $number)({ a: "" })).toBe(false);
+  expect($record($string, $number)({ a: {} })).toBe(false);
+
+  expect($record($numberString, $number)({ 0: 0 })).toBe(true);
+  expect($record($numberString, $number)({ 0: 0, 1: 1 })).toBe(true);
+  expect($record($numberString, $number)({ a: 1 })).toBe(false);
+  expect($record($numberString, $number)({ a: "a" })).toBe(false);
+
+  expect($record($string, $number)({ a: {} })).toBe(false);
+  expect($record($string, $object({ v: $string }))({ a: { v: "hi" } })).toBe(
+    true,
+  );
+  expect($record($string, $object({ v: $string }))({ a: { v: 1 } })).toBe(
+    false,
+  );
 });
 
 test("array", () => {

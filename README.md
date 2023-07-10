@@ -37,6 +37,7 @@ import {
   $undefined,
   $union,
   $void,
+  $record,
   type Infer,
   type Validator,
 } from "lizod";
@@ -59,6 +60,7 @@ const validate = $object({
     $object({ b: $number }),
   ])),
   sec: $intersection([$string, $const("x")]),
+  record: $record($string, $number)
 });
 
 const v: Infer<typeof validate> = {
@@ -85,16 +87,20 @@ const v: Infer<typeof validate> = {
     { b: 1 },
   ],
   sec: "x",
+  record: {
+    "a": 1,
+    "b": 2
+  }
 };
 
 if (validate(v)) {
-  const _: string = v.name;
-  const __: number = v.age;
-  const ___: string | void = v.familyName;
-  const ____: "a" | "b" | "c" = v.abc;
-  const _____: { age: number } = v.nested;
-  const ______: "static" = v.static;
-  const _______: Array<{
+  const _1: string = v.name;
+  const _2: number = v.age;
+  const _3: string | void = v.familyName;
+  const _4: "a" | "b" | "c" = v.abc;
+  const _5: { age: number } = v.nested;
+  const _6: "static" = v.static;
+  const _7: Array<{
     a: string;
     b: boolean;
   }> = v.items;
@@ -158,6 +164,17 @@ const wrap: (child: Validator<string>) => Validator<string> =
 ## Relations
 
 - https://github.com/colinhacks/zod
+
+## ChangeLog
+
+### v0.2.6
+
+- added: `$record`
+- added: `$numberString`
+
+### v0.2.5
+
+- fix: `$intersection` return type https://github.com/mizchi/lizod/pull/13
 
 ## LICENSE
 
