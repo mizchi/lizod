@@ -8,6 +8,7 @@ import {
   $intersection,
   $null,
   $number,
+  $bigint,
   $numberString,
   $object,
   $opt,
@@ -35,6 +36,8 @@ test("primitives", () => {
   expect($string(1)).toBe(false);
   expect($number(1)).toBe(true);
   expect($number("")).toBe(false);
+  expect($bigint(0n)).toBe(true);
+  expect($bigint("")).toBe(false);
   expect($boolean(true)).toBe(true);
   expect($boolean("")).toBe(false);
   expect($boolean(1)).toBe(false);

@@ -91,6 +91,10 @@ export const $number: Validator<number> = (input: any): input is number => {
   return _typeof(input) === "number";
 };
 
+export const $bigint: Validator<bigint> = (input: any): input is bigint => {
+  return _typeof(input) === "bigint";
+}
+
 export const $boolean: Validator<boolean> = (input: any): input is boolean => {
   return _typeof(input) === "boolean";
 };
