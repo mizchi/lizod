@@ -10,6 +10,7 @@ import {
   $number,
   $bigint,
   $numberString,
+  $numberRange,
   $object,
   $opt,
   $record,
@@ -87,6 +88,12 @@ test("numberString", () => {
   expect($numberString("")).toBe(false);
   expect($numberString("NaN")).toBe(false);
   expect($numberString("string")).toBe(false);
+});
+
+test("numberRange", () => {
+  expect($numberRange(0, 10)(0)).toBe(true);
+  expect($numberRange(0, 10)(10)).toBe(false);
+  expect($numberRange(0, 10)("")).toBe(false);
 });
 
 test("object", () => {

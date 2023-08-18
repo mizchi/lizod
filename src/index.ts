@@ -95,6 +95,10 @@ export const $bigint: Validator<bigint> = (input: any): input is bigint => {
   return _typeof(input) === "bigint";
 }
 
+export const $numberRange = (min: number | undefined, max: number | undefined): Validator<number> => (input: any): input is number => {
+  return _typeof(input) === "number" && (min === undefined || input >= min) && (max === undefined || input < max);
+}
+
 export const $boolean: Validator<boolean> = (input: any): input is boolean => {
   return _typeof(input) === "boolean";
 };
