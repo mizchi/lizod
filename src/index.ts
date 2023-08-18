@@ -99,6 +99,30 @@ export const $numberRange = (min: number | undefined, max: number | undefined): 
   return _typeof(input) === "number" && (min === undefined || input >= min) && (max === undefined || input < max);
 }
 
+export const $i8: Validator<number> = (input: any): input is number => {
+  return _typeof(input) === "number" && input % 1 === 0 && input >= -128 && input < 128;
+}
+
+export const $u8: Validator<number> = (input: any): input is number => {
+  return _typeof(input) === "number" && input % 1 === 0 && input >= 0 && input < 256;
+}
+
+export const $i16: Validator<number> = (input: any): input is number => {
+  return _typeof(input) === "number" && input % 1 === 0 && input >= -32768 && input < 32768;
+}
+
+export const $u16: Validator<number> = (input: any): input is number => {
+  return _typeof(input) === "number" && input % 1 === 0 && input >= 0 && input < 65536;
+}
+
+export const $i32: Validator<number> = (input: any): input is number => {
+  return _typeof(input) === "number" && input % 1 === 0 && input >= -2147483648 && input < 2147483648;
+}
+
+export const $u32: Validator<number> = (input: any): input is number => {
+  return _typeof(input) === "number" && input % 1 === 0 && input >= 0 && input < 4294967296;
+}
+
 export const $boolean: Validator<boolean> = (input: any): input is boolean => {
   return _typeof(input) === "boolean";
 };
