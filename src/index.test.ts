@@ -8,7 +8,15 @@ import {
   $intersection,
   $null,
   $number,
+  $bigint,
   $numberString,
+  $numberRange,
+  $i8,
+  $u8,
+  $i16,
+  $u16,
+  $i32,
+  $u32,
   $object,
   $opt,
   $record,
@@ -35,6 +43,8 @@ test("primitives", () => {
   expect($string(1)).toBe(false);
   expect($number(1)).toBe(true);
   expect($number("")).toBe(false);
+  expect($bigint(0n)).toBe(true);
+  expect($bigint("")).toBe(false);
   expect($boolean(true)).toBe(true);
   expect($boolean("")).toBe(false);
   expect($boolean(1)).toBe(false);
@@ -84,6 +94,48 @@ test("numberString", () => {
   expect($numberString("")).toBe(false);
   expect($numberString("NaN")).toBe(false);
   expect($numberString("string")).toBe(false);
+});
+
+test("numberRange", () => {
+  expect($numberRange(0, 10)(0)).toBe(true);
+  expect($numberRange(0, 10)(10)).toBe(false);
+  expect($numberRange(0, 10)("")).toBe(false);
+
+  expect($i8(-128)).toBe(true);
+  expect($i8(127)).toBe(true);
+  expect($i8(-129)).toBe(false);
+  expect($i8(128)).toBe(false);
+  expect($i8(0.5)).toBe(false);
+
+  expect($u8(0)).toBe(true);
+  expect($u8(255)).toBe(true);
+  expect($u8(-1)).toBe(false);
+  expect($u8(256)).toBe(false);
+  expect($u8(0.5)).toBe(false);
+
+  expect($i16(-32768)).toBe(true);
+  expect($i16(32767)).toBe(true);
+  expect($i16(-32769)).toBe(false);
+  expect($i16(32768)).toBe(false);
+  expect($i16(0.5)).toBe(false);
+
+  expect($u16(0)).toBe(true);
+  expect($u16(65535)).toBe(true);
+  expect($u16(-1)).toBe(false);
+  expect($u16(65536)).toBe(false);
+  expect($u16(0.5)).toBe(false);
+
+  expect($i32(-2147483648)).toBe(true);
+  expect($i32(2147483647)).toBe(true);
+  expect($i32(-2147483649)).toBe(false);
+  expect($i32(2147483648)).toBe(false);
+  expect($i32(0.5)).toBe(false);
+
+  expect($u32(0)).toBe(true);
+  expect($u32(4294967295)).toBe(true);
+  expect($u32(-1)).toBe(false);
+  expect($u32(4294967296)).toBe(false);
+  expect($u32(0.5)).toBe(false);
 });
 
 test("object", () => {
