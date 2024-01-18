@@ -47,7 +47,7 @@ export const $void: Validator<void> = (input: any): input is void => {
   return input == null;
 };
 
-export const $any: Validator<void> = (input: any): input is any => {
+export const $any: Validator<any> = (input: any): input is any => {
   return true;
 };
 
